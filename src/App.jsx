@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import CardList from './components/card-list/card-list.component';
+import SearchField from './components/search-field/search-field.component';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [monsters, setMonster] = useState([]);
+    const [filteredMonsters, setFilteredMonsters] = useState([]);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then((response) => response.json())
+            .then((data) => {
+                setMonster(data);
+                setFilteredMonsters(data);
+            })
+            .catch((error) => console.error('Error fetching data:', error));
+    }, []);
+
+    const onSearchChange = (event) => {
+        const searchString = event.target.value.toLowerCase();
+        const filteredMonsters = monsters.filter((monster) => {
+            return monster.name.toLowerCase().includes(searchString);
+        });
+        setFilteredMonsters(filteredMonsters);
+    };
+
+    return (
+        <div className="app-container">
+            <h1 className="app-title">Monsters Rolodex</h1>
+            <SearchField onChangeHandler ={onSearchChange} />
+            <CardList monsters={filteredMonsters} />
+        </div>
+    )
 }
 
 export default App
